@@ -1,7 +1,5 @@
 import * as THREE from 'three'
 
-console.log('W', window)
-
 export let VIEWPORT_ASPECT_RATIO = window.innerWidth / window.innerHeight
 
 type Vec3 = [number, number, number]
@@ -36,6 +34,15 @@ export function init(scene: THREE.Scene) {
   CAMS.player.translateZ(DEFAULT_POSITION[2])
   CAMS.player.lookAt(0, 0, 0)
 
+  const spot = new THREE.SpotLight()
+    .translateX(CAMS.player.position.x)
+    .translateY(CAMS.player.position.y)
+    .translateZ(CAMS.player.position.z)
+    .rotateX(CAMS.player.rotation.x)
+    .rotateY(CAMS.player.rotation.y)
+    .rotateZ(CAMS.player.rotation.z)
+  CAMS.player.add(spot)
+
   CAMS.top = makeDefaultCam()
   CAMS.top.translateY(10)
   CAMS.top.lookAt(0, 0, 0)
@@ -56,6 +63,8 @@ export function lookTo(direction: Vec3) {
 }
 
 export function setAspectRatio(width: number, height: number) {
-  CAMS.player.aspect = width / height
-  CAMS.player.updateProjectionMatrix()
+  if (CAMS.player) {
+    CAMS.player.aspect = width / height
+    CAMS.player.updateProjectionMatrix()
+  }
 }

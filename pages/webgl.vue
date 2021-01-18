@@ -1,6 +1,7 @@
 <template lang="pug">
 .lol
   button.button.is-primary.is-small(@click="onReloadClick") Reload
+  small &nbsp; {{ elapsedTime }}
   hr
   .webgl(ref="root")
     .viewport(ref="viewport")
@@ -17,6 +18,9 @@
 </template>
 
 <script>
+let moment
+if (process.browser) moment = require('moment')
+
 let webgl = null
 if (process.browser) webgl = require('@/webgl')
 
@@ -35,6 +39,9 @@ const component = {
     overlayContent: '',
     mouseOverIcon: false,
     reloading: false,
+    lastReload: moment(),
+    lastReloadStrTimer: null,
+    elapsedTime: null,
   }),
   created() {
     onHMRStart = () => {
@@ -42,10 +49,23 @@ const component = {
     }
     onHMREnd = () => (this.hmr = false)
     window.addEventListener('resize', () => this.updateAspectRatio(), false)
+
+    this.elapsedTime = moment
+      .duration(this.lastReload.diff(moment()))
+      .humanize(true)
+    this.lastReloadStrTimer = setInterval(() => {
+      this.elapsedTime = moment
+        .duration(this.lastReload.diff(moment()))
+        .humanize(true)
+    }, 1000)
   },
   mounted() {
-    this.reload()
-    this.$refs.viewport.focus()
+    const tryAttaching = () => {
+      if (this.$refs.viewport) {
+        this.$refs.viewport.focus()
+        this.reload()
+      } else this.$nextTick(tryAttaching)
+    }
   },
   methods: {
     updateAspectRatio() {

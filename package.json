@@ -12,14 +12,13 @@
   },
   "dependencies": {
     "@nuxt/typescript-runtime": "^2.0.1",
+    "babylonjs": "^4.2.0",
     "core-js": "^3.8.2",
     "moment": "^2.29.1",
     "nuxt": "^2.14.12",
     "nuxt-buefy": "^0.4.4",
     "pug": "^3.0.0",
-    "pug-plain-loader": "^1.1.0",
-    "three": "^0.124.0",
-    "three-orbit-controls": "^82.1.0"
+    "pug-plain-loader": "^1.1.0"
   },
   "devDependencies": {
     "@nuxt/types": "^2.14.12",

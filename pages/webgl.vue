@@ -4,9 +4,11 @@
   small &nbsp; {{ elapsedTime }}
   hr
   .webgl(ref="root")
-    .viewport(ref="viewport")
+    canvas.viewport(ref="viewport")
     .overlay
-      p {{ hmr ? 'Waiting for HMR...' : overlayContent }}
+      p
+        span(v-if="hmr") Waiting for HMR...
+        span(v-else) {{ fps }} FPS
       .controls.has-text-right
         b-icon.clickable(
           :key="!reloading ? 'reload' : 'check'"
@@ -21,8 +23,11 @@
 let moment
 if (process.browser) moment = require('moment')
 
-let webgl = null
+let webgl
 if (process.browser) webgl = require('@/webgl')
+
+let input
+if (process.browser) input = require('@/webgl/input/vr')
 
 module.hot.addStatusHandler((status) => {
   if (status === 'check' && onHMRStart) onHMRStart()
@@ -36,7 +41,7 @@ const component = {
   name: 'WebGL',
   data: () => ({
     hmr: false,
-    overlayContent: '',
+    fps: 0,
     mouseOverIcon: false,
     reloading: false,
     lastReload: moment(),
@@ -46,6 +51,7 @@ const component = {
   created() {
     onHMRStart = () => {
       this.hmr = true
+      this.attach()
     }
     onHMREnd = () => (this.hmr = false)
     window.addEventListener('resize', () => this.updateAspectRatio(), false)
@@ -60,14 +66,15 @@ const component = {
     }, 1000)
   },
   mounted() {
-    const tryAttaching = () => {
+    this.attach()
+  },
+  methods: {
+    attach() {
       if (this.$refs.viewport) {
         this.$refs.viewport.focus()
         this.reload()
-      } else this.$nextTick(tryAttaching)
-    }
-  },
-  methods: {
+      } else this.$nextTick(() => this.attach())
+    },
     updateAspectRatio() {
       if (this.$refs.viewport) webgl.setAspectRatio(...this.getAspectRatio())
     },
@@ -84,7 +91,9 @@ const component = {
     },
     reload() {
       console.clear()
-      webgl.init(this.$refs.viewport, (x) => (this.overlayContent = x))
+      webgl.init(this.$refs.viewport, (fps) => (this.fps = fps))
+      input.init(navigator)
+      input.scan()
       this.updateAspectRatio()
       webgl.renderLoop()
     },

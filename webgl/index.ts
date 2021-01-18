@@ -1,20 +1,7 @@
-import * as THREE from 'three'
-import THREEOrbitControls from 'three-orbit-controls'
+import * as BABYLON from 'babylonjs'
 
-import * as renderer from './renderer'
 import * as scene from './scene/index'
 import * as camera from './scene/cameras'
-
-const OrbitControls = THREEOrbitControls(THREE)
-
-export let CONTROLS: InstanceType<typeof OrbitControls>
-
-function initControls(cam: THREE.PerspectiveCamera, rendererDomNode: Element) {
-  CONTROLS = new OrbitControls(cam, rendererDomNode)
-  // controls.maxPolerAngle = Math.PI / 2
-  // controls.minDistance = 1
-  // constrols.
-}
 
 export const TIMERS = {
   start: new Date().getTime(),
@@ -27,23 +14,29 @@ export let fps: number
 
 let error: Error | null = null
 
-let RENDERER: THREE.Renderer
-let activeScene: THREE.Scene
-let activeCamera: THREE.PerspectiveCamera
-let overlay: (x: string) => unknown
+let engine: BABYLON.Engine
+let activeScene: BABYLON.Scene
+let activeCamera: BABYLON.Camera
+let updateFps: (fps: number) => unknown
 
-export function init(canvas: Element, overlay_: (x: string) => unknown) {
-  RENDERER = renderer.init(canvas)
-  overlay = overlay_
-  activeScene = scene.init()
-  activeCamera = camera.get('player')
-  initControls(activeCamera, RENDERER.domElement)
+export function init(
+  canvas: HTMLCanvasElement,
+  updateFps_: (fps: number) => unknown
+) {
+  engine = new BABYLON.Engine(canvas, true)
+  updateFps = updateFps_
+  activeScene = scene.init(engine)
+  activeCamera = activeScene.getCameraByName('playerCam')!
+  activeCamera.attachControl(canvas, false)
+}
+
+export function runRenderLoop() {
+  engine.runRenderLoop(() => activeScene.render())
 }
 
 export function renderLoop() {
   if (error) {
     console.error(error)
-    overlay(error.toString())
     return
   }
 
@@ -57,14 +50,14 @@ export function renderLoop() {
     framesDrawnThisSecond = 0
     // round to seconds
     TIMERS.lastSec = Math.floor(now / 1000) * 1000
-    overlay(`${fps} FPS`)
+    updateFps(fps)
   }
 
   framesDrawnThisSecond++
   TIMERS.lastFrame = now
 
   try {
-    RENDERER.render(activeScene, activeCamera)
+    activeScene.render()
   } catch (err) {
     error = err
   }
@@ -72,7 +65,6 @@ export function renderLoop() {
   requestAnimationFrame(renderLoop)
 }
 
-export function setAspectRatio(width: number, height: number) {
-  renderer.setAspectRatio(width, height)
-  camera.setAspectRatio(width, height)
+export function setAspectRatio() {
+  engine.resize()
 }

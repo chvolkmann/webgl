@@ -1,13 +1,7 @@
-import * as THREE from 'three'
+import * as BABYLON from 'babylonjs'
 
-const OBJECTS: Record<string, THREE.Object3D> = {}
+const OBJECTS: Record<string, BABYLON.Mesh> = {}
 
-export function init(scene: THREE.Scene) {
-  OBJECTS.ball = new THREE.Mesh(
-    new THREE.SphereGeometry(1, 200, 200),
-    new THREE.MeshStandardMaterial({ color: 'red' })
-  )
-  OBJECTS.ball.add(new THREE.AxesHelper(3))
-
-  scene.add(...Object.values(OBJECTS))
+export function init(scene: BABYLON.Scene) {
+  BABYLON.Mesh.CreateSphere('sphere', 16, 2, scene)
 }

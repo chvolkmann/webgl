@@ -14,19 +14,27 @@
     "@nuxt/typescript-runtime": "^2.0.1",
     "core-js": "^3.8.2",
     "nuxt": "^2.14.12",
-    "nuxt-buefy": "^0.4.4"
+    "nuxt-buefy": "^0.4.4",
+    "pug": "^3.0.0",
+    "pug-plain-loader": "^1.1.0",
+    "three": "^0.124.0",
+    "three-orbit-controls": "^82.1.0"
   },
   "devDependencies": {
     "@nuxt/types": "^2.14.12",
     "@nuxt/typescript-build": "^2.0.4",
     "@nuxtjs/eslint-config-typescript": "^5.0.0",
     "@nuxtjs/eslint-module": "^3.0.2",
+    "@types/three": "^0.103.2",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.18.0",
     "eslint-config-prettier": "^7.1.0",
     "eslint-plugin-nuxt": "^2.0.0",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.4.1",
-    "prettier": "^2.2.1"
+    "prettier": "^2.2.1",
+    "sass": "^1.32.4",
+    "sass-loader": "^10.1.1",
+    "typescript": "^4.1.3"
   }
 }

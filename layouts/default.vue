@@ -43,14 +43,9 @@ export default {
     return {
       items: [
         {
-          title: 'Home',
-          icon: 'home',
-          to: { name: 'index' },
-        },
-        {
-          title: 'Inspire',
-          icon: 'lightbulb',
-          to: { name: 'inspire' },
+          title: 'WebGL',
+          icon: 'vector-triangle',
+          to: { name: 'webgl' },
         },
       ],
     }

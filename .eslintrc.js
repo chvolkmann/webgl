@@ -12,6 +12,12 @@ module.exports = {
     'plugin:nuxt/recommended',
   ],
   plugins: ['prettier'],
-  // add your custom rules here
-  rules: {},
+  rules: {
+    'import/no-mutable-exports': 'off',
+    'no-console': 'off',
+    '@typescript-eslint/no-unused-vars': 'warn',
+    'no-unused-vars': 'warn',
+    'prettier/prettier': 'warn',
+    'unicorn/number-literal-case': 'off',
+  },
 }

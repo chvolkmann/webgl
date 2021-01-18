@@ -9,6 +9,7 @@
       "DOM"
     ],
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "allowJs": true,
     "sourceMap": true,
     "strict": true,
@@ -16,9 +17,6 @@
     "experimentalDecorators": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": [
-        "./*"
-      ],
       "@/*": [
         "./*"
       ]
@@ -26,7 +24,8 @@
     "types": [
       "@nuxt/types",
       "@types/node"
-    ]
+    ],
+    "incremental": true
   },
   "exclude": [
     "node_modules",

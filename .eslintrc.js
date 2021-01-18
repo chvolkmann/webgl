@@ -19,5 +19,8 @@ module.exports = {
     'no-unused-vars': 'warn',
     'prettier/prettier': 'warn',
     'unicorn/number-literal-case': 'off',
+    'no-async-promise-executor': 'off',
+    'require-await': 'off',
+    'no-useless-constructor': 'off',
   },
 }

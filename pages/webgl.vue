@@ -8,7 +8,7 @@
     .overlay
       p
         span(v-if="hmr") Waiting for HMR...
-        span(v-else) {{ fps }} FPS
+        span(v-else) {{ fps.toFixed(0) }} FPS
       .controls.has-text-right
         b-icon.clickable(
           :key="!reloading ? 'reload' : 'check'"
@@ -47,6 +47,7 @@ const component = {
     lastReload: moment(),
     lastReloadStrTimer: null,
     elapsedTime: null,
+    fpsPollTimer: null,
   }),
   created() {
     onHMRStart = () => {
@@ -64,16 +65,29 @@ const component = {
         .duration(this.lastReload.diff(moment()))
         .humanize(true)
     }, 1000)
+
+    this.fpsPollTimer = setInterval(() => (this.fps = webgl.getFPS()), 1000)
   },
-  mounted() {
-    this.attach()
+  async mounted() {
+    try {
+      await this.attach()
+      console.log('Attached Babylon Context!')
+    } catch (err) {
+      console.error('Error attaching during mount', err)
+    }
   },
   methods: {
-    attach() {
-      if (this.$refs.viewport) {
-        this.$refs.viewport.focus()
-        this.reload()
-      } else this.$nextTick(() => this.attach())
+    async attach() {
+      return new Promise(async (resolve) => {
+        if (this.$refs.viewport) {
+          this.$refs.viewport.focus()
+          await this.reload()
+          resolve()
+        } else {
+          await this.$nextTick()
+          resolve(await this.attach())
+        }
+      })
     },
     updateAspectRatio() {
       if (this.$refs.viewport) webgl.setAspectRatio(...this.getAspectRatio())
@@ -89,13 +103,14 @@ const component = {
       this.reload()
       setTimeout(() => (this.reloading = false), 1000)
     },
-    reload() {
+    async reload() {
       console.clear()
-      webgl.init(this.$refs.viewport, (fps) => (this.fps = fps))
-      input.init(navigator)
-      input.scan()
+      webgl.destroy()
+      webgl.init(this.$refs.viewport)
+      // input.init(navigator)
+      // input.scan()
       this.updateAspectRatio()
-      webgl.renderLoop()
+      webgl.runRenderLoop()
     },
   },
 }

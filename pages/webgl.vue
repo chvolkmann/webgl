@@ -126,6 +126,7 @@ const component = {
       // input.init(navigator)
       // input.scan()
       this.updateAspectRatio()
+      this.lastReload = moment()
     },
     startRenderLoop() {
       this.rendering = true

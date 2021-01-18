@@ -41,23 +41,22 @@ const component = {
       this.hmr = true
     }
     onHMREnd = () => (this.hmr = false)
-    window.addEventListener(
-      'resize',
-      () => {
-        if (this.$refs.viewport) {
-          const style = window.getComputedStyle(this.$refs.viewport)
-          const parsePx = (str) => parseFloat(str.slice(0, -2))
-          webgl.setAspectRatio(parsePx(style.width), parsePx(style.height))
-        }
-      },
-      false
-    )
+    window.addEventListener('resize', () => this.updateAspectRatio(), false)
   },
   mounted() {
     this.reload()
     this.$refs.viewport.focus()
   },
   methods: {
+    updateAspectRatio() {
+      if (this.$refs.viewport) webgl.setAspectRatio(...this.getAspectRatio())
+    },
+    getAspectRatio() {
+      if (!this.$refs.viewport) return
+      const style = window.getComputedStyle(this.$refs.viewport)
+      const parsePx = (str) => parseFloat(str.slice(0, -2))
+      return [parsePx(style.width), parsePx(style.height)]
+    },
     onReloadClick() {
       this.reloading = true
       this.reload()
@@ -66,6 +65,7 @@ const component = {
     reload() {
       console.clear()
       webgl.init(this.$refs.viewport, (x) => (this.overlayContent = x))
+      this.updateAspectRatio()
       webgl.renderLoop()
     },
   },

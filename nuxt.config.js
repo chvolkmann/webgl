@@ -1,3 +1,5 @@
+import CleanTerminalPlugin from 'clean-terminal-webpack-plugin'
+
 export default {
   ssr: false,
 
@@ -37,5 +39,15 @@ export default {
   ],
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
-  build: {},
+  build: {
+    plugins: [
+      new CleanTerminalPlugin({
+        message: `HMR @ ${new Date()
+          .toISOString()
+          .slice(0, -1)
+          .split('T')
+          .join(' ')}`,
+      }),
+    ],
+  },
 }

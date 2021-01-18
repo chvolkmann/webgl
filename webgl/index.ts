@@ -3,12 +3,6 @@ import * as BABYLON from 'babylonjs'
 import * as scene from './scene/index'
 import * as camera from './scene/cameras'
 
-export const TIMERS = {
-  start: new Date().getTime(),
-  lastFrame: new Date().getTime(),
-  lastSec: new Date().getTime(),
-}
-
 let engine: BABYLON.Engine
 let activeScene: BABYLON.Scene
 let activeCamera: BABYLON.Camera
@@ -34,5 +28,9 @@ export function destroy() {
 }
 
 export function setAspectRatio() {
-  engine.resize()
+  if (engine) engine.resize()
+}
+
+export function stopRenderLoop() {
+  if (engine) engine.stopRenderLoop()
 }

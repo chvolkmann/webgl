@@ -1,14 +1,18 @@
 <template lang="pug">
-.lol
-  button.button.is-primary.is-small(@click="onReloadClick") Reload
-  small &nbsp; {{ elapsedTime }}
+div
+  .btns(style="display: flex; justify-content: center; align-items: center")
+    button.button.is-primary.is-small(@click="onReloadClick") Reload
+    template
+      button.button.is-success.is-small.is-outlined(v-if="rendering" @click="stopRenderLoop") Rendering
+      button.button.is-success.is-small(v-else @click="startRenderLoop") Render
+    small {{ elapsedTime }}
   hr
   .webgl(ref="root")
     canvas.viewport(ref="viewport")
     .overlay
       p
         span(v-if="hmr") Waiting for HMR...
-        span(v-else) {{ fps.toFixed(0) }} FPS
+        span(v-else) {{ fps ? fps.toFixed(0) : '?' }} FPS
       .controls.has-text-right
         b-icon.clickable(
           :key="!reloading ? 'reload' : 'check'"
@@ -48,21 +52,25 @@ const component = {
     lastReloadStrTimer: null,
     elapsedTime: null,
     fpsPollTimer: null,
+    rendering: true,
   }),
   created() {
     onHMRStart = () => {
       this.hmr = true
+      this.destroy()
+    }
+    onHMREnd = () => {
+      this.hmr = false
       this.attach()
     }
-    onHMREnd = () => (this.hmr = false)
     window.addEventListener('resize', () => this.updateAspectRatio(), false)
 
     this.elapsedTime = moment
-      .duration(this.lastReload.diff(moment()))
+      .duration((this.lastReload ?? moment()).diff(moment()))
       .humanize(true)
     this.lastReloadStrTimer = setInterval(() => {
       this.elapsedTime = moment
-        .duration(this.lastReload.diff(moment()))
+        .duration((this.lastReload ?? moment()).diff(moment()))
         .humanize(true)
     }, 1000)
 
@@ -71,6 +79,7 @@ const component = {
   async mounted() {
     try {
       await this.attach()
+      if (this.rendering) this.startRenderLoop()
       console.log('Attached Babylon Context!')
     } catch (err) {
       console.error('Error attaching during mount', err)
@@ -89,6 +98,10 @@ const component = {
         }
       })
     },
+    destroy() {
+      this.stopRenderLoop()
+      webgl.destroy()
+    },
     updateAspectRatio() {
       if (this.$refs.viewport) webgl.setAspectRatio(...this.getAspectRatio())
     },
@@ -103,14 +116,24 @@ const component = {
       this.reload()
       setTimeout(() => (this.reloading = false), 1000)
     },
+    getCanvas() {
+      return document.querySelector('canvas.viewport')
+    },
     async reload() {
       console.clear()
-      webgl.destroy()
-      webgl.init(this.$refs.viewport)
+      this.destroy()
+      webgl.init(this.getCanvas())
       // input.init(navigator)
       // input.scan()
       this.updateAspectRatio()
+    },
+    startRenderLoop() {
+      this.rendering = true
       webgl.runRenderLoop()
+    },
+    stopRenderLoop() {
+      this.rendering = false
+      webgl.stopRenderLoop()
     },
   },
 }
@@ -118,6 +141,21 @@ export default component
 </script>
 
 <style lang="sass" scoped>
+.button
+  &:focus, &.is-focus
+    background-color: inherit
+    color: inherit
+    border-color: inherit
+
+.btns
+  padding-top: 20px
+  display: flex
+  flex-direction: row
+  > *
+    margin-left: 10px
+    &:first-child
+      margin-left: 0
+
 .webgl
   width: 75vw
   height: 75vh

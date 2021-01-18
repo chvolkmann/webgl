@@ -2,7 +2,7 @@
 .lol
   button.button.is-primary.is-small(@click="onReloadClick") Reload
   hr
-  .webgl
+  .webgl(ref="root")
     .viewport(ref="viewport")
     .overlay
       p {{ hmr ? 'Waiting for HMR...' : overlayContent }}
@@ -13,7 +13,7 @@
           size="is-small"
           :type="reloading ? 'is-success' : ''"
           @click="onReloadClick"
-          )
+        )
 </template>
 
 <script>
@@ -36,10 +36,24 @@ const component = {
     mouseOverIcon: false,
     reloading: false,
   }),
-  mounted() {
-    onHMRStart = () => (this.hmr = true)
+  created() {
+    onHMRStart = () => {
+      this.hmr = true
+    }
     onHMREnd = () => (this.hmr = false)
-    webgl.registerListeners(window)
+    window.addEventListener(
+      'resize',
+      () => {
+        if (this.$refs.viewport) {
+          const style = window.getComputedStyle(this.$refs.viewport)
+          const parsePx = (str) => parseFloat(str.slice(0, -2))
+          webgl.setAspectRatio(parsePx(style.width), parsePx(style.height))
+        }
+      },
+      false
+    )
+  },
+  mounted() {
     this.reload()
     this.$refs.viewport.focus()
   },

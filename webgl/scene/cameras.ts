@@ -55,7 +55,7 @@ export function lookTo(direction: Vec3) {
   CAMS.player.rotation.set(...direction)
 }
 
-export function onWindowResize() {
-  CAMS.player.aspect = window.innerHeight / window.innerWidth
+export function setAspectRatio(width: number, height: number) {
+  CAMS.player.aspect = width / height
   CAMS.player.updateProjectionMatrix()
 }

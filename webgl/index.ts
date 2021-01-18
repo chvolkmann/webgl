@@ -72,7 +72,7 @@ export function renderLoop() {
   requestAnimationFrame(renderLoop)
 }
 
-export function registerListeners(window: Window) {
-  window.addEventListener('resize', renderer.onWindowResize)
-  window.addEventListener('resize', camera.onWindowResize)
+export function setAspectRatio(width: number, height: number) {
+  renderer.setAspectRatio(width, height)
+  camera.setAspectRatio(width, height)
 }

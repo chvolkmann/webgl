@@ -1,13 +1,11 @@
 import * as THREE from 'three'
 
-export let canvas: any = null
 export let renderer: THREE.WebGLRenderer
 
-export function init(node: Element) {
-  canvas = node
+export function init(canvas: Element) {
   renderer = new THREE.WebGLRenderer({ antialias: true })
   renderer.setPixelRatio(window.devicePixelRatio)
-  renderer.setSize(canvas.offsetWidth, canvas.offsetHeight)
+  renderer.setSize((<any>canvas).offsetWidth, (<any>canvas).offsetHeight)
   renderer.shadowMap.enabled = true
 
   canvas.children.forEach((child: any) => child.remove())
@@ -16,6 +14,6 @@ export function init(node: Element) {
   return renderer
 }
 
-export function onWindowResize() {
-  if (canvas) renderer.setSize(canvas.offsetWidth, canvas.offsetHeight)
+export function setAspectRatio(width: number, height: number) {
+  renderer.setSize(width, height)
 }

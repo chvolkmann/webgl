@@ -7,6 +7,7 @@ export function init(scene: THREE.Scene) {
     new THREE.SphereGeometry(1, 200, 200),
     new THREE.MeshStandardMaterial({ color: 'red' })
   )
+  OBJECTS.ball.add(new THREE.AxesHelper(3))
 
   scene.add(...Object.values(OBJECTS))
 }

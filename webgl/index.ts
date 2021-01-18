@@ -5,9 +5,6 @@ import * as renderer from './renderer'
 import * as scene from './scene/index'
 import * as camera from './scene/cameras'
 
-console.log('3', THREE)
-console.log('WND', window)
-
 const OrbitControls = THREEOrbitControls(THREE)
 
 export let CONTROLS: InstanceType<typeof OrbitControls>

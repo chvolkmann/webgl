@@ -1,30 +1,62 @@
 <template lang="pug">
-.webgl
-  .viewport(ref="viewport")
-  .overlay {{ overlayContent }}
+.lol
+  button.button.is-primary.is-small(@click="onReloadClick") Reload
+  hr
+  .webgl
+    .viewport(ref="viewport")
+    .overlay
+      p {{ hmr ? 'Waiting for HMR...' : overlayContent }}
+      .controls.has-text-right
+        b-icon.clickable(
+          :key="!reloading ? 'reload' : 'check'"
+          :icon="!reloading ? 'reload' : 'check'"
+          size="is-small"
+          :type="reloading ? 'is-success' : ''"
+          @click="onReloadClick"
+          )
 </template>
 
 <script>
 let webgl = null
 if (process.browser) webgl = require('@/webgl')
 
-export default {
+module.hot.addStatusHandler((status) => {
+  if (status === 'check' && onHMRStart) onHMRStart()
+  else if (status === 'idle' && onHMREnd) onHMREnd()
+})
+
+let onHMRStart
+let onHMREnd
+
+const component = {
   name: 'WebGL',
   data: () => ({
+    hmr: false,
     overlayContent: '',
+    mouseOverIcon: false,
+    reloading: false,
   }),
   mounted() {
+    onHMRStart = () => (this.hmr = true)
+    onHMREnd = () => (this.hmr = false)
     webgl.registerListeners(window)
     this.reload()
+    this.$refs.viewport.focus()
   },
   methods: {
+    onReloadClick() {
+      this.reloading = true
+      this.reload()
+      setTimeout(() => (this.reloading = false), 1000)
+    },
     reload() {
-      console.log(webgl)
+      console.clear()
       webgl.init(this.$refs.viewport, (x) => (this.overlayContent = x))
       webgl.renderLoop()
     },
   },
 }
+export default component
 </script>
 
 <style lang="sass" scoped>
@@ -50,4 +82,10 @@ export default {
     pointer-events: none
     text-align: right
     padding: 2px 5px
+
+    .controls .clickable
+      cursor: pointer
+      pointer-events: all
+      &:hover
+        color: teal
 </style>

@@ -22,5 +22,6 @@ module.exports = {
     'no-async-promise-executor': 'off',
     'require-await': 'off',
     'no-useless-constructor': 'off',
+    'nuxt/no-globals-in-created': 'off',
   },
 }

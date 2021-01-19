@@ -36,20 +36,19 @@ function makeSpaceyDonutMesh(
   frame.convertToFlatShadedMesh()
   frame.parent = parent
 
-  return { parent, plane, frame }
+  return { parent, plane, frame, segments }
 }
 
 // Returns a function that maps [0,1) into the target domain
 const scaleTo = (min: number, max: number) => (x: number) =>
   (max - min) * x + min
 
-// Maps from [0,1) to [0, 1)
+// Maps from [0,1) to [0,1)
 // Input resembles progress %
 // Output resembles point between min and max along the output axis
 const waveMod = (p: number) => -Math.cos(p * 2 * Math.PI)
 
 function animateSpaceyDonut(
-  scene: BABYLON.Scene,
   spaceyDonut: ReturnType<typeof makeSpaceyDonutMesh>,
   min: number = 0,
   max: number = 10,
@@ -68,7 +67,8 @@ function animateSpaceyDonut(
   spaceyDonut.plane.registerBeforeRender(() => {
     const progress = counter / totalFrames
     const posNew = posBuf.map(
-      (_: number, phaseIndex: number) => mod(progress, phaseIndex) // ! phaseProgress to unit int
+      (_: number, phaseIndex: number) =>
+        mod(progress, phaseIndex / spaceyDonut.segments) // ! phaseProgress to unit int
     )
     spaceyDonut.plane.updateVerticesData(
       BABYLON.VertexBuffer.PositionKind,
@@ -88,5 +88,5 @@ function animateSpaceyDonut(
 
 export function init(scene: BABYLON.Scene) {
   const spaceyDonut = makeSpaceyDonutMesh(scene)
-  animateSpaceyDonut(scene, spaceyDonut)
+  animateSpaceyDonut(spaceyDonut)
 }

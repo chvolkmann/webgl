@@ -13,6 +13,7 @@
   "dependencies": {
     "@nuxt/typescript-runtime": "^2.0.1",
     "babylonjs": "^4.2.0",
+    "consola": "^2.15.0",
     "core-js": "^3.8.2",
     "lodash": "^4.17.20",
     "moment": "^2.29.1",

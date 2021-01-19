@@ -1,10 +1,19 @@
 <template lang="pug">
 div
   .btns(style="display: flex; justify-content: center; align-items: center")
-    button.button.is-primary.is-small(@click="onReloadClick") Reload
-    template
-      button.button.is-success.is-small.is-outlined(v-if="rendering" @click="stopRenderLoop") Rendering
-      button.button.is-success.is-small(v-else @click="startRenderLoop") Render
+    b-button(
+      type="is-info"
+      icon-left="reload"
+      outlined
+      :loading="reloading"
+      @click="onReloadClick"
+    )
+    b-button(
+      type="is-success"
+      :outlined="rendering"
+      :icon-left="rendering ? 'stop' : 'play'"
+      @click="(...args) => rendering ? stopRendering(...args) : startRendering(...args)"
+    )
     small {{ elapsedTime }}
   hr
   .webgl(ref="root")
@@ -24,24 +33,33 @@ div
 </template>
 
 <script>
+import LOGS from '@/util/logging'
+
 let moment
 if (process.browser) moment = require('moment')
 
 let webgl
 if (process.browser) webgl = require('@/webgl')
 
-let input
-if (process.browser) input = require('@/webgl/input/vr')
-
-module.hot.addStatusHandler((status) => {
+function hmrStatusHandler(status) {
+  LOGS.lifecycle.info(status)
   if (status === 'check' && onHMRStart) onHMRStart()
   else if (status === 'idle' && onHMREnd) onHMREnd()
-})
+}
 
+let hmrHandlerAdded = false
+if (!hmrHandlerAdded) {
+  hmrHandlerAdded = true
+  LOGS.lifecycle.debug('Injecting HMR hooks')
+  module.hot.addStatusHandler(hmrStatusHandler)
+}
+module.hot.removeStatusHandler(hmrStatusHandler)
+
+// Handlers set by the Vue component
 let onHMRStart
 let onHMREnd
 
-const component = {
+export default {
   name: 'WebGL',
   data: () => ({
     hmr: false,
@@ -55,15 +73,22 @@ const component = {
     rendering: true,
   }),
   created() {
+    LOGS.lifecycle.debug('Vue Component created')
     onHMRStart = () => {
+      LOGS.lifecycle.warn('HMR starting')
       this.hmr = true
-      this.destroy()
+      this.destroyContext()
     }
     onHMREnd = () => {
+      // console.clear()
+      LOGS.lifecycle.warn('HMR finisshssssefd')
       this.hmr = false
-      this.attach()
+      // this.attach()
+      // if (this.rendering) this.startRendering()
     }
-    window.addEventListener('resize', () => this.updateAspectRatio(), false)
+    if (window) {
+      window.addEventListener('resize', () => this.updateAspectRatio(), false)
+    }
 
     this.elapsedTime = moment
       .duration((this.lastReload ?? moment()).diff(moment()))
@@ -78,19 +103,25 @@ const component = {
   },
   async mounted() {
     try {
+      LOGS.lifecycle.debug('Vue Component mounted')
       await this.attach()
-      if (this.rendering) this.startRenderLoop()
-      console.log('Attached Babylon Context!')
+
+      this.startRendering()
     } catch (err) {
-      console.error('Error attaching during mount', err)
+      LOGS.lifecycle.error('Error attaching during mount', err)
     }
+  },
+  beforeDestroy() {
+    LOGS.lifecycle.debug('Destroying Vue Component')
+    this.destroyContext()
   },
   methods: {
     async attach() {
       return new Promise(async (resolve) => {
         if (this.$refs.viewport) {
-          this.$refs.viewport.focus()
+          LOGS.lifecycle.debug('WebGL renderer attached')
           await this.reload()
+          this.$refs.viewport.focus()
           resolve()
         } else {
           await this.$nextTick()
@@ -98,8 +129,8 @@ const component = {
         }
       })
     },
-    destroy() {
-      this.stopRenderLoop()
+    destroyContext() {
+      this.stopRendering()
       webgl.destroy()
     },
     updateAspectRatio() {
@@ -111,34 +142,40 @@ const component = {
       const parsePx = (str) => parseFloat(str.slice(0, -2))
       return [parsePx(style.width), parsePx(style.height)]
     },
-    onReloadClick() {
+    async onReloadClick() {
+      LOGS.main.debug('Clicked on Reload')
       this.reloading = true
-      this.reload()
+
+      const currentlyRendering = !!this.rendering
+      await this.reload()
+      if (currentlyRendering) this.startRendering()
       setTimeout(() => (this.reloading = false), 1000)
     },
     getCanvas() {
       return document.querySelector('canvas.viewport')
     },
     async reload() {
-      console.clear()
-      this.destroy()
-      webgl.init(this.getCanvas())
+      // console.clear()
+      LOGS.lifecycle.info('Reloading')
+      this.destroyContext()
+      webgl.mount(this.getCanvas())
       // input.init(navigator)
       // input.scan()
       this.updateAspectRatio()
       this.lastReload = moment()
     },
-    startRenderLoop() {
+    startRendering() {
+      LOGS.main.debug('Starting rendering loop')
       this.rendering = true
-      webgl.runRenderLoop()
+      webgl.startRendering()
     },
-    stopRenderLoop() {
+    stopRendering() {
+      LOGS.main.debug('Stopping rendering loop')
       this.rendering = false
-      webgl.stopRenderLoop()
+      webgl.stopRendering()
     },
   },
 }
-export default component
 </script>
 
 <style lang="sass" scoped>

@@ -1,4 +1,5 @@
 import CleanTerminalPlugin from 'clean-terminal-webpack-plugin'
+import webpack from 'webpack'
 
 export default {
   ssr: false,
@@ -48,6 +49,7 @@ export default {
           .split('T')
           .join(' ')}`,
       }),
+      new webpack.EvalSourceMapDevToolPlugin(),
     ],
   },
 }

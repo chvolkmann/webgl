@@ -42,18 +42,13 @@ let webgl
 if (process.browser) webgl = require('@/webgl')
 
 function hmrStatusHandler(status) {
-  LOGS.lifecycle.info(status)
   if (status === 'check' && onHMRStart) onHMRStart()
   else if (status === 'idle' && onHMREnd) onHMREnd()
 }
 
-let hmrHandlerAdded = false
-if (!hmrHandlerAdded) {
-  hmrHandlerAdded = true
-  LOGS.lifecycle.debug('Injecting HMR hooks')
-  module.hot.addStatusHandler(hmrStatusHandler)
-}
-module.hot.removeStatusHandler(hmrStatusHandler)
+LOGS.lifecycle.debug('Injecting HMR hooks')
+module.hot.removeStatusHandler()
+module.hot.addStatusHandler(hmrStatusHandler)
 
 // Handlers set by the Vue component
 let onHMRStart
@@ -78,13 +73,11 @@ export default {
       LOGS.lifecycle.warn('HMR starting')
       this.hmr = true
       this.destroyContext()
+      console.clear()
     }
     onHMREnd = () => {
-      // console.clear()
-      LOGS.lifecycle.warn('HMR finisshssssefd')
+      // LOGS.lifecycle.warn('HMR finished')
       this.hmr = false
-      // this.attach()
-      // if (this.rendering) this.startRendering()
     }
     if (window) {
       window.addEventListener('resize', () => this.updateAspectRatio(), false)

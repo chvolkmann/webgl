@@ -3,7 +3,7 @@ import * as BABYLON from 'babylonjs'
 import * as camera from './cameras'
 import * as lights from './lights'
 import * as environment from './environment'
-import * as objects from './objects'
+import * as objects from './objects/index'
 import * as animations from './animations'
 
 export let scene: BABYLON.Scene

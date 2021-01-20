@@ -1,6 +1,6 @@
 import * as BABYLON from 'babylonjs'
 
-const OBJECTS: Record<string, BABYLON.Mesh> = {}
+import * as WavePlane from './WavePlane'
 
 export function init(scene: BABYLON.Scene) {
   const sphere = BABYLON.Mesh.CreateSphere('sphere', 16, 2, scene, true)
@@ -11,6 +11,36 @@ export function init(scene: BABYLON.Scene) {
   sphere.material = mat
 
   addCoordAxes(new BABYLON.Vector3(), new BABYLON.Vector3(), scene, 4)
+
+  const plane = WavePlane.makePlane(scene, {
+    width: 20,
+    height: 20,
+    subdivisons: 100,
+    color: BABYLON.Color3.Blue(),
+    flat: true,
+  })
+  // const frame = WavePlane.makeWireframePlane(scene, BABYLON.Color3.White(), {
+  //   width: 20,
+  //   height: 20,
+  //   subdivisons: 100,
+  //   color: BABYLON.Color3.Blue(),
+  //   flat: true,
+  // })
+  WavePlane.addWaveyAnimator(plane, {
+    totalFrames: 60,
+    min: 0,
+    max: 1,
+    phaseShift: (1 / 180) * Math.PI,
+    mod: WavePlane.MOD_PEAK,
+  })
+
+  // WavePlane.addWaveyAnimator(frame, {
+  //   totalFrames: 60,
+  //   min: 0,
+  //   max: 2,
+  //   phaseShift: (1 / 180) * Math.PI,
+  //   mod: WavePlane.MOD_PEAK,
+  // })
 }
 
 export function addCoordAxes(
